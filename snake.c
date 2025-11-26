@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <signal.h>
+#include <stdlib.h>
+#include <time.h>
 
 void screenBorder(){
 //width = COLS
@@ -30,9 +32,12 @@ typedef struct{
     int y;
 } vec2;
 
+int score = 0;
+
 int main(){
 
     initscr();
+    srand(time(NULL));
     //enable the initialized screen to read key bindings
     keypad(stdscr, true);
     //prevent key inputs from being repeated by the program
@@ -42,14 +47,19 @@ int main(){
     //enables the program to run and recieve inputs at the same time
     nodelay(stdscr, true);
 
-    // //=================player snake=================
+//=================player snake=================
     //set default position to left end of the middle row
     vec2 head = {2,LINES/2};
     //set default movement to rightwards
     vec2 dir = {1.0};
 
+//=================apples================= 
+    //set the default position of the apple to be random (-2 to prevent the apple from spawning in the border)
+    vec2 apple = {1+rand() % (COLS-2), 1+rand() % (LINES-2)};
+
+//=================Controls=================
     // int pressed;
-    // //while screen is initialized
+    //while screen is initialized
     while(true){
         //pressed = character read from window(main window)
         int pressed = getch();
@@ -97,14 +107,28 @@ int main(){
         head.x += dir.x;
         head.y += dir.y;
 
-        //=================draw=================
+        //if the snake head collides with the apple: 
+        //increase the score | move the apple to a random spot (/2 to counteract the *2 grid positioning | -2 to prevent the apple from spawning in the border)
+        if (head.x == apple.x && head.y == apple.y){
+            score += 1;
+            apple.x = 1+rand() % ((COLS/2)-2);
+            apple.y = 1+rand() % (LINES-2);
+        }
+
+//=================draw=================
         //clear the screen
         clear();
         //draw the screen border
         screenBorder();
+
+        //print the apple character at position Y,X. 
+            //*2 to keep consistency with the snake's own grid movement.
+        mvaddch(apple.y, apple.x*2, '@');
+
         //print the given character (Z) at position Y,X (defined above)
-            //*1.75 to increase and match vertical movement speed to horizontal movement speed (could play with later to make the game harder as it goes)
-        mvaddch(head.y, head.x*1.75, 'O');
+            //*2 to increase and match vertical movement speed to horizontal movement speed (could play with later to make the game harder as it goes)
+        mvaddch(head.y, head.x*2, '~');
+        
         refresh();
         //slow the program down by milliseconds to make it reactable
         usleep(125000);
