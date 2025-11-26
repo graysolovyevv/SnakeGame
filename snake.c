@@ -24,15 +24,91 @@ hline('#', COLS);
 refresh();
 }
 
+//structure for initializing X,Y coordinate-based variables
+typedef struct{
+    int x;
+    int y;
+} vec2;
 
-int main(int argc, char const *argv[]){
+int main(){
 
     initscr();
-    clear();
+    //enable the initialized screen to read key bindings
+    keypad(stdscr, true);
+    //prevent key inputs from being repeated by the program
+    noecho();
+    //hides the curser
+    curs_set(0);
+    //enables the program to run and recieve inputs at the same time
+    nodelay(stdscr, true);
 
-    screenBorder();
+    // //=================player snake=================
+    //set default position to left end of the middle row
+    vec2 head = {2,LINES/2};
+    //set default movement to rightwards
+    vec2 dir = {1.0};
 
-    getchar();
+    // int pressed;
+    // //while screen is initialized
+    while(true){
+        //pressed = character read from window(main window)
+        int pressed = getch();
+
+        //if a key was intentionally pressed (not an error)
+        if(pressed != ERR){
+            // if the character read is a directional key, move X or Y directions based on the key.
+            if(pressed == KEY_LEFT){
+                //prevents snake from going into itself (turning the opposite direction). Same application for other input keys
+                if(dir.x == 1){
+                    continue;
+                }
+                dir.x = -1;
+                dir.y = 0;
+            }
+            else if(pressed == KEY_RIGHT){
+                if(dir.x == -1){
+                    continue;
+                }
+                dir.x = 1;
+                dir.y = 0;
+            }
+            else if(pressed == KEY_DOWN){
+                if(dir.y == -1){
+                    continue;
+                }
+                dir.x = 0;
+                dir.y = 1;
+            }
+            else if(pressed == KEY_UP){
+                if(dir.y == 1){
+                    continue;
+                }
+                dir.x = 0;
+                dir.y = -1;
+            }
+
+            //if ESC is read, kill the game
+            else if (pressed == '\e'){
+                break;
+            }
+        }
+
+        //position of snake head will continuously move X and Y spaces based on the read key input
+        head.x += dir.x;
+        head.y += dir.y;
+
+        //=================draw=================
+        //clear the screen
+        clear();
+        //draw the screen border
+        screenBorder();
+        //print the given character (Z) at position Y,X (defined above)
+            //*1.75 to increase and match vertical movement speed to horizontal movement speed (could play with later to make the game harder as it goes)
+        mvaddch(head.y, head.x*1.75, 'O');
+        refresh();
+        //slow the program down by milliseconds to make it reactable
+        usleep(125000);
+    }
     endwin();
     return 0;
 }
