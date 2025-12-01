@@ -53,8 +53,7 @@ void quit_game() {
 
 //draw a rectangular border
 void draw_border(int top, int left, int width, int height) {
-    // corners (little visual flair)
-    mvaddch(top, left, '+');
+    mvaddch(top, left, '+'); // corners (little visual flair)
     mvaddch(top, left + width - 1, '+');
     mvaddch(top + height - 1, left, '+');
     mvaddch(top + height - 1, left + width - 1, '+');
@@ -172,7 +171,7 @@ void init() {
     sprintf(score_message, "[ SCORE: %d ]", score);
 }
 
-//resets after a loss, if user chooses to play again
+//resets after a game ends, if user chooses to play again
 void restart_game() {
     head.x = 5;
     head.y = 5;
@@ -231,7 +230,7 @@ void process_input() {
 
         //*************** this needs to be fixed ***************
         //if ESC is read, kill the game (27 = ESC)
-        else if (pressed == 27){
+        else if (pressed == '\e'){
             is_running = false;
             quit_game();
         }
