@@ -49,6 +49,7 @@ vec2 apple;
 //quit the game
 void quit_game() {
     is_running = false;
+    endwin();
 }
 
 //draw a rectangular border
@@ -230,9 +231,11 @@ void process_input() {
 
         //*************** this needs to be fixed ***************
         //if ESC is read, kill the game (27 = ESC)
-        else if (pressed == '\e'){
-            is_running = false;
-            quit_game();
+        else if (pressed == 27){
+            if (is_running == true || is_running == false){
+                is_running = false;
+                quit_game();
+            }
         }
     }
 }
@@ -244,9 +247,6 @@ void game_over() {
 
         mvaddstr(screen_height / 2, screen_width - 16, "            Game Over            ");
         mvaddstr(screen_height / 2 + 1, screen_width - 16, "Space to restart, ESC to quit");
-        attron(COLOR_PAIR(3));
-        draw_border(screen_height / 2 - 1, screen_width - 27, 17, 2);
-        attroff(COLOR_PAIR(3));
 
         usleep(FRAME_TIME);
     }
@@ -255,7 +255,7 @@ void game_over() {
 int main(){
     init();
     //=================Controls=================
-    while(true){
+    while(is_running){
         process_input();
         update();
 
@@ -270,18 +270,36 @@ int main(){
 
         //print the apple character at position Y,X. 
         //*2 to keep consistency with the snake's own grid movement.
+        attron(COLOR_PAIR(1));
         mvaddch(apple.y, apple.x*2, '@');
+        attroff(COLOR_PAIR(1));
 
         //print the given character (Z) at position Y,X (defined above)
         //*2 to increase and match vertical movement speed to horizontal movement speed (could play with later to make the game harder as it goes)
+        attron(COLOR_PAIR(2));
         for (int i = 0; i < score; i++) {
             mvaddch(segments[i].y, segments[i].x * 2, 'o');
         }
-        mvaddch(head.y, head.x*2, '~');
+        char head_char;
+        if(dir.x == 1 && dir.y == 0){
+            head_char = '>';
+        }
+        if(dir.x == -1 && dir.y == 0){
+            head_char = '<';
+        }
+        if(dir.x == 0 && dir.y == -1){
+            head_char = '^';
+        }
+        if(dir.x == 0 && dir.y == 1){
+            head_char = 'v';
+        }
+
+        mvaddch(head.y, head.x*2, head_char);
+        attroff(COLOR_PAIR(2));
         
         refresh();
         //slow the program down by milliseconds to make it reactable
-        usleep(125000);
+        usleep(12500);
     }
     
     endwin();
