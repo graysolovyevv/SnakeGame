@@ -120,7 +120,7 @@ void update() {
     head.y += dir.y;
 
     //lose condition
-    if (collide_snake_body(head) || head.x < 0 || head.y < 0 || head.x >= screen_width || head.y >= screen_height) {
+    if (collide_snake_body(head) || head.x == 0 || head.y == 0 || head.x == screen_width || head.y == screen_height-1) {
         is_running = false;
         game_over();
     }
@@ -223,33 +223,37 @@ void process_input() {
             dir.x = 0;
             dir.y = -1;
         }
-
-        else if (pressed == ' '){
-            if (!is_running)
-                restart_game();
-        }
-
-        //*************** this needs to be fixed ***************
         //if ESC is read, kill the game (27 = ESC)
         else if (pressed == 27){
-            if (is_running == true || is_running == false){
-                is_running = false;
-                quit_game();
-            }
+            is_running = false;
+            quit_game();
         }
     }
 }
 
 //after a loss, prints to inform the user of their options
 void game_over() {
-    while (is_running == false) {
-        process_input();
 
+    nodelay(win, false);
+
+    while (true) {
         mvaddstr(screen_height / 2, screen_width - 16, "            Game Over            ");
         mvaddstr(screen_height / 2 + 1, screen_width - 16, "Space to restart, ESC to quit");
 
-        usleep(FRAME_TIME);
+        refresh();
+
+        int pressed = wgetch(win);
+        if (pressed == ' '){
+            restart_game();
+            break;
+        }
+        //if ESC is read, kill the game (27 = ESC)
+        else if (pressed == 27){
+            quit_game();
+            exit(0);
+        }
     }
+    nodelay(win, true);
 }
 
 int main(){
@@ -299,7 +303,7 @@ int main(){
         
         refresh();
         //slow the program down by milliseconds to make it reactable
-        usleep(12500);
+        // usleep(10);
     }
     
     endwin();
